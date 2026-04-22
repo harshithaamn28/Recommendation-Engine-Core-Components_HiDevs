@@ -1,21 +1,36 @@
-class Evaluator:
+import math
 
-    # precision = relevant recommended / total recommended
-    def precision(self, recommended, relevant):
+class RecommendationEvaluator:
 
-        if len(recommended) == 0:
+    def precision_at_k(self, recs, relevant, k):
+        recs = recs[:k]
+        if not recs:
             return 0
+        
+        items = [i for i, _, _ in recs]
+        return len(set(items) & set(relevant)) / len(items)
 
-        rec_items = set()
-        for item, score in recommended:
-            rec_items.add(item)
+    def recall_at_k(self, recs, relevant, k):
+        recs = recs[:k]
+        if not relevant:
+            return 0
+        
+        items = [i for i, _, _ in recs]
+        return len(set(items) & set(relevant)) / len(relevant)
 
-        rel_items = set(relevant)
+    def ndcg_at_k(self, recs, relevant, k):
+        dcg = 0
+        for i, (item, _, _) in enumerate(recs[:k]):
+            if item in relevant:
+                dcg += 1 / math.log2(i + 2)
 
-        count = 0
+        ideal = sum(1 / math.log2(i + 2) for i in range(min(len(relevant), k)))
 
-        for item in rec_items:
-            if item in rel_items:
-                count += 1
+        return dcg / ideal if ideal != 0 else 0
 
-        return count / len(rec_items)
+    def evaluate_all(self, recs, relevant, k=3):
+        return {
+            "precision": self.precision_at_k(recs, relevant, k),
+            "recall": self.recall_at_k(recs, relevant, k),
+            "ndcg": self.ndcg_at_k(recs, relevant, k)
+        }

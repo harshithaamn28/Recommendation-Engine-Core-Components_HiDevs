@@ -1,26 +1,29 @@
-class Scorer:
+class RecommendationScorer:
 
-    # assigning scores to items
-    def rank(self, candidates, similarity_scores):
+    def __init__(self):
+        self.scorers = []
 
-        if len(candidates) == 0:
-            return []
+    def add_scorer(self, name, function, weight):
+        self.scorers.append((name, function, weight))
 
-        result = []
+    def calculate_score(self, user_id, item_id, context):
+        total = 0
+        explanation = {}
+
+        for name, func, weight in self.scorers:
+            score = func(user_id, item_id, context)
+            total += score * weight
+            explanation[name] = score
+
+        return total, explanation
+
+    def rank_candidates(self, user_id, candidates, limit=3):
+        ranked = []
 
         for item in candidates:
-            score = 0
+            score, explanation = self.calculate_score(user_id, item, {})
+            ranked.append((item, score, explanation))
 
-            # if score not present, default 0
-            if item in similarity_scores:
-                score = similarity_scores[item]
+        ranked.sort(key=lambda x: x[1], reverse=True)
 
-            result.append((item, score))
-
-        # sorting based on score
-        result.sort(key=lambda x: x[1], reverse=True)
-
-        return result
-
-    def top_k(self, ranked_list, k=3):
-        return ranked_list[:k]
+        return ranked[:limit]

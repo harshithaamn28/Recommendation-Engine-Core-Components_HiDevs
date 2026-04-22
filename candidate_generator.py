@@ -1,15 +1,22 @@
 class CandidateGenerator:
 
-    def generate(self, user_items, all_items):
+    def collaborative_candidates(self, user_id):
+        # dummy logic (simulating similar users)
+        return ["movie3", "movie4"]
 
-        if not user_items:
-            print("No user data, returning empty list")
-            return []
+    def content_based_candidates(self, user_id):
+        # dummy logic (based on user history)
+        return ["movie4", "movie5"]
 
-        candidates = []
+    def popularity_candidates(self):
+        return ["movie3", "movie5"]
 
-        for item in all_items:
-            if item not in user_items:
-                candidates.append(item)
+    def hybrid_candidates(self, user_id):
+        candidates = (
+            self.collaborative_candidates(user_id) +
+            self.content_based_candidates(user_id) +
+            self.popularity_candidates()
+        )
 
-        return candidates
+        # remove duplicates + limit size
+        return list(set(candidates))[:20]
