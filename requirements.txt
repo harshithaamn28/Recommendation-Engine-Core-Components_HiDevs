@@ -1,1 +1,11 @@
-# Add your project dependencies here
+flask
+pandas
+numpy
+scikit-learn
+requests
+streamlit
+matplotlib
+pytest
+textblob
+google-play-scraper
+fpdf
